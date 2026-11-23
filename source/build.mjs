@@ -4,6 +4,8 @@ import fs from 'fs';
 // ---- настройки, которые меняются под себя ----
 const TG = process.env.TG_URL || 'https://t.me/pluuuto';
 const TG_HANDLE = '@' + TG.split('/').pop();
+const MAIN = process.env.MAIN_URL || 'https://tocchhka.pro/'; // основная ТОЧКА
+const MAIN_LABEL = MAIN.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const BOT = process.env.BOT_URL || '#stylist'; // потом подставишь ссылку на бота
 
 const out = await build({
@@ -43,7 +45,7 @@ const map = {
   '{{BUTTON}}': buttonSvg(),
   '{{FAVICON}}': enc(staticBtn),
   '{{BTN_URI}}': enc(staticBtn),
-  '{{TG}}': TG, '{{TG_HANDLE}}': TG_HANDLE, '{{BOT}}': BOT,
+  '{{MAIN}}': MAIN, '{{MAIN_LABEL}}': MAIN_LABEL, '{{TG}}': TG, '{{TG_HANDLE}}': TG_HANDLE, '{{BOT}}': BOT,
 };
 for (const [k, v] of Object.entries(map)) html = html.split(k).join(v);
 html = html.split('{{JS}}').join(js); // JS последним, чтобы не трогать его содержимое

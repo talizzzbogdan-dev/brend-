@@ -460,6 +460,14 @@ async function init() {
     { p: [2.4, 2.3, 5.8], t: [-1.5, 1.2, 0] },     // process: обзор сбоку
     { p: [0.3, 1.9, 3.4], t: [-0.7, 1.85, 0] },    // contact: пуговица
   ];
+  const KEYS_M = [
+    { p: [0.9, 1.7, 6.3], t: [0, 1.2, 0] },
+    { p: [1.5, 1.75, 4.3], t: [0.85, 1.5, 0] },
+    { p: [-0.5, 1.75, 4.3], t: [-0.85, 1.5, 0] },
+    { p: [2.6, 2.4, 6.2], t: [0, 1.25, 0] },
+    { p: [0.4, 1.95, 3.1], t: [0, 1.72, 0] },
+  ];
+  let SH = Math.round(innerHeight * 0.46); // высота сцены на телефоне
   const IDS = ['hero', 'brands', 'stylist', 'process', 'contact'];
   let anchors = [0, 1, 2, 3, 4];
   function measure() {
@@ -467,15 +475,14 @@ async function init() {
       const el = document.getElementById(id);
       if (!el) return i * 1000;
       if (i === 0) return 0;
-      return el.offsetTop + el.offsetHeight / 2 - innerHeight / 2;
+      const top = el.getBoundingClientRect().top + scrollY;
+      return isNarrow() ? top - SH : top + el.offsetHeight / 2 - innerHeight / 2;
     });
     for (let i = 1; i < anchors.length; i++) anchors[i] = Math.max(anchors[i], anchors[i - 1] + 10);
   }
   const keyAt = (i) => {
-    const k = KEYS[i];
-    const p = V(...k.p), t = V(...k.t);
-    if (isNarrow()) { p.z += i === 0 ? 4.8 : 1.9; p.x *= 0.7; t.x *= 0.15; t.y -= i === 0 ? 1.15 : 0.85; }
-    return { p, t };
+    const k = (isNarrow() ? KEYS_M : KEYS)[i];
+    return { p: V(...k.p), t: V(...k.t) };
   };
   const camPos = V(...KEYS[0].p), camTar = V(...KEYS[0].t);
   const tmpP = V(0, 0), tmpT = V(0, 0);
@@ -483,7 +490,7 @@ async function init() {
     let i = 0;
     while (i < anchors.length - 2 && y >= anchors[i + 1]) i++;
     const u = clamp((y - anchors[i]) / (anchors[i + 1] - anchors[i]), 0, 1);
-    const e = smooth(0.12, 0.88, u);
+    const e = isNarrow() ? smooth(0.4, 0.95, u) : smooth(0.12, 0.88, u);
     const a = keyAt(i), b = keyAt(i + 1);
     tmpP.lerpVectors(a.p, b.p, e);
     tmpT.lerpVectors(a.t, b.t, e);
@@ -491,11 +498,16 @@ async function init() {
 
   // ---------- ввод ----------
   const ptr = { x: 0, y: 0, moved: false, touch: false };
+  const toNdc = (e) => {
+    const r = canvas.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const y = -((e.clientY - r.top) / r.height) * 2 + 1;
+    return Math.abs(x) <= 1 && Math.abs(y) <= 1 ? { x, y } : null;
+  };
   addEventListener('pointermove', (e) => {
-    ptr.x = (e.clientX / innerWidth) * 2 - 1;
-    ptr.y = -(e.clientY / innerHeight) * 2 + 1;
-    ptr.moved = true;
     ptr.touch = e.pointerType === 'touch';
+    const n = toNdc(e);
+    if (n) { ptr.x = n.x; ptr.y = n.y; ptr.moved = true; }
   }, { passive: true });
   const ray = new THREE.Raycaster();
   let hovered = null, hoverPend = false;
@@ -507,26 +519,34 @@ async function init() {
   }
   addEventListener('click', (e) => {
     if (overUi(e)) return;
-    const o = pick((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+    const n = toNdc(e);
+    if (!n) return;
+    const o = pick(n.x, n.y);
     if (!o) return;
     const link = o.userData.pendant ? '#contact' : o.userData.swinger && o.userData.swinger.link;
-    const el = link && document.querySelector(link);
-    if (el) el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    const idx = link ? IDS.indexOf(link.slice(1)) : -1;
+    if (idx >= 0) scrollTo({ top: anchors[idx], behavior: reduce ? 'auto' : 'smooth' });
     if (o.userData.swinger) o.userData.swinger.vx += 0.5;
     if (o.userData.pendant) pend.vy += 3;
   });
 
   // ---------- размеры ----------
-  function resize() {
-    const w = innerWidth, h = innerHeight;
+  let lastW = innerWidth, lastH = innerHeight;
+  function resize(force) {
+    // на телефоне адресная строка меняет высоту при скролле: не перестраиваем сцену из-за этого
+    if (!force && isNarrow() && innerWidth === lastW && Math.abs(innerHeight - lastH) < 100) return;
+    lastW = innerWidth; lastH = innerHeight;
+    SH = Math.round(innerHeight * 0.46);
+    const w = innerWidth, h = isNarrow() ? SH : innerHeight;
+    document.documentElement.style.setProperty('--stage-h', SH + 'px');
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.fov = isNarrow() ? 42 : 32;
+    camera.fov = isNarrow() ? 38 : 32;
     camera.updateProjectionMatrix();
     measure();
   }
-  addEventListener('resize', resize);
-  resize();
+  addEventListener('resize', () => resize(false));
+  resize(true);
   addEventListener('load', measure);
   if (document.fonts) document.fonts.ready.then(measure);
 
