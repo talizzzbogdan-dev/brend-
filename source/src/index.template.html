@@ -73,12 +73,19 @@ ol.steps b{display:block;font-weight:500}
 ol.steps span{color:var(--soft)}
 .note{font-size:.95rem;color:var(--soft);margin-top:1em}
 
-footer{position:relative;z-index:2;padding:28px clamp(20px,5vw,72px) 36px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.92rem;color:var(--soft)}
+#contact{position:relative}
+footer{position:absolute;left:0;right:0;bottom:0;z-index:2;pointer-events:auto;background:var(--bg);display:grid;grid-template-columns:1.3fr 1fr 1.3fr;gap:32px;align-items:start;padding:34px clamp(20px,5vw,72px) 40px;font-size:.96rem;color:var(--soft)}
+footer::before{content:"";position:absolute;left:0;right:0;top:-56px;height:56px;background:linear-gradient(rgba(220,224,232,0),var(--bg));pointer-events:none}
+footer p{margin:.7em 0 0}
+footer a{text-decoration:none;color:var(--ink)}
+footer a:not(.logo):hover{text-decoration:underline;text-underline-offset:4px}
+footer .fnav,footer .f-links{display:grid;gap:.55em;align-items:start}
+.logo.small{font-size:1.2rem}
 
 @media (max-width:760px){
   :root{--stage-h:46svh}
   header{padding:14px 18px;background:none}
-  nav a:not(.cta){display:none}
+  header nav a:not(.cta){display:none}
   .logo{font-size:1.25rem}
   .stage-wrap{inset:0 0 auto 0;height:var(--stage-h);z-index:3;pointer-events:auto;background:var(--bg)}
   .stage-wrap::after{content:"";position:absolute;left:0;right:0;bottom:-20px;height:20px;background:linear-gradient(var(--bg),rgba(220,224,232,0))}
@@ -86,7 +93,8 @@ footer{position:relative;z-index:2;padding:28px clamp(20px,5vw,72px) 36px;displa
   main{margin-top:var(--stage-h);pointer-events:auto}
   .s::before{display:none}
   .s,.s.hero{display:block;min-height:0;padding:30px 20px 44px;scroll-margin-top:var(--stage-h)}
-  #contact{min-height:calc(100svh - var(--stage-h))}
+  #contact{min-height:calc(100svh - var(--stage-h));display:flex;flex-direction:column;align-items:stretch;padding-bottom:0}
+  .copy,.hero .copy{padding-bottom:36px!important}
   .copy,.hero .copy{max-width:none;margin:0;padding:0;background:none}
   h1{font-size:clamp(1.5rem,6.9vw,2.4rem)}
   h1 .line>span{white-space:nowrap}
@@ -95,7 +103,8 @@ footer{position:relative;z-index:2;padding:28px clamp(20px,5vw,72px) 36px;displa
   p{font-size:1rem}
   .actions{margin-top:1.3em}
   .cta{width:100%}
-  footer{flex-direction:column;gap:6px;padding:20px 20px 40px}
+  footer{position:static;margin:auto -20px 0;grid-template-columns:1fr;gap:24px;padding:28px 20px 44px;border-top:1px solid rgba(20,23,31,.12)}
+  footer::before{display:none}
 }
 </style>
 </head>
@@ -180,13 +189,26 @@ footer{position:relative;z-index:2;padding:28px clamp(20px,5vw,72px) 36px;displa
       </div>
       <p class="note">Нужен маркетинг целиком: реклама, сайт, продажи? Загляните в <a href="{{MAIN}}">основную ТОЧКУ</a>.</p>
     </div>
+      <footer>
+        <div class="f-brand">
+          <a class="logo small" href="#hero" aria-label="ТОЧКА, наверх"><span>ТОЧКА</span>{{BUTTON}}</a>
+          <p>Одеваем бренды. Одеваем людей.</p>
+        </div>
+        <nav class="fnav" aria-label="Разделы в подвале">
+          <a href="#brands">Бренды</a>
+          <a href="#stylist">Стилист</a>
+          <a href="#process">Как работаем</a>
+        </nav>
+        <div class="f-links">
+          <a href="{{MAIN}}">Основная ТОЧКА</a>
+          <span>Маркетинг под ключ: {{MAIN_LABEL}}</span>
+          <a href="{{TG}}">Telegram {{TG_HANDLE}}</a>
+        </div>
+      </footer>
   </section>
 </main>
 
-<footer>
-  <span>ТОЧКА. Одеваем бренды. Одеваем людей.</span>
-  <span>Маркетинг под ключ: <a href="{{MAIN}}">{{MAIN_LABEL}}</a> · Telegram: {{TG_HANDLE}}</span>
-</footer>
+
 
 <script>{{JS}}</script>
 </body>
