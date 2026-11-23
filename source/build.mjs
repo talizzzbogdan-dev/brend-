@@ -27,6 +27,8 @@ const fonts = [
   face('Onest', 400, `${F}/onest/files/onest-latin-400-normal.woff2`, LAT),
   face('Onest', 500, `${F}/onest/files/onest-cyrillic-500-normal.woff2`, CYR),
   face('Onest', 500, `${F}/onest/files/onest-latin-500-normal.woff2`, LAT),
+  face('Onest', 800, `${F}/onest/files/onest-cyrillic-800-normal.woff2`, CYR),
+  face('Onest', 800, `${F}/onest/files/onest-latin-800-normal.woff2`, LAT),
 ].join('\n');
 
 const buttonSvg = (cls = '') =>
