@@ -43,6 +43,7 @@ const enc = (s) => encodeURIComponent(s).replace(/'/g, '%27').replace(/"/g, '%22
 
 let html = fs.readFileSync('src/index.template.html', 'utf8');
 const map = {
+  '{{BLOT}}': 'data:image/webp;base64,'+fs.readFileSync('src/blot.webp').toString('base64'),
   '{{FONTS}}': fonts,
   '{{BUTTON}}': buttonSvg(),
   '{{FAVICON}}': enc(staticBtn),
